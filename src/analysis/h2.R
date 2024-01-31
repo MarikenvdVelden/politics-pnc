@@ -2,25 +2,25 @@ h2_1 <- tidy(lm(PNC ~ E2 + sex + education + age, d)) |>
   mutate(lower = estimate - (1.96*std.error),
          upper = estimate + (1.96*std.error),
          term = recode(term,
-                       `E2` = "Ideology (Left-Right)",
+                       `E2` = "Ideology",
                        `sexMale` = "Gender: Male",
                        `educationLow` = "Education: Low",
                        `educationMedium` = "Education: Medium",
                        `age` = "Age",
                        .default = term),
-         model = "Model 1")
+         model = "Left-Right")
 
 h2_2 <- tidy(lm(PNC ~ E2_2 + sex + education + age, d)) |> 
   mutate(lower = estimate - (1.96*std.error),
          upper = estimate + (1.96*std.error),
          term = recode(term,
-                       `E2_2` = "Ideology (Progressive-Conservative)",
+                       `E2_2` = "Ideology",
                        `sexMale` = "Gender: Male",
                        `educationLow` = "Education: Low",
                        `educationMedium` = "Education: Medium",
                        `age` = "Age",
                        .default = term),
-         model = "Model 2")
+         model = "Progressive-Conservative")
 
 p2 <- h2_1 |> 
   add_case(h2_2) |> 

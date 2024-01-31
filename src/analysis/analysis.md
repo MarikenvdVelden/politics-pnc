@@ -38,22 +38,22 @@ education
 
 ## H2: Individuals with a lower PNC are more likely to have a more right-wing political orientation (H2a) and will vote for conservative political parties (H2b).
 
-| term                  | estimate | std.error | statistic | p.value | lower | upper | model   |
-|:----------------------|---------:|----------:|----------:|--------:|------:|------:|:--------|
-| (Intercept)           |     3.72 |      0.02 |    211.66 |    0.00 |  3.68 |  3.75 | Model 1 |
-| Ideology (Left-Right) |     0.00 |      0.00 |     -1.58 |    0.11 |  0.00 |  0.00 | Model 1 |
-| Gender: Male          |     0.00 |      0.01 |      0.25 |    0.80 | -0.02 |  0.02 | Model 1 |
-| Education: Low        |    -0.16 |      0.01 |    -12.11 |    0.00 | -0.19 | -0.13 | Model 1 |
-| Education: Medium     |    -0.09 |      0.01 |     -9.24 |    0.00 | -0.11 | -0.07 | Model 1 |
-| Age                   |     0.00 |      0.00 |    -13.15 |    0.00 |  0.00 |  0.00 | Model 1 |
+| term              | estimate | std.error | statistic | p.value | lower | upper | model      |
+|:------------------|---------:|----------:|----------:|--------:|------:|------:|:-----------|
+| (Intercept)       |     3.72 |      0.02 |    211.66 |    0.00 |  3.68 |  3.75 | Left-Right |
+| Ideology          |     0.00 |      0.00 |     -1.58 |    0.11 |  0.00 |  0.00 | Left-Right |
+| Gender: Male      |     0.00 |      0.01 |      0.25 |    0.80 | -0.02 |  0.02 | Left-Right |
+| Education: Low    |    -0.16 |      0.01 |    -12.11 |    0.00 | -0.19 | -0.13 | Left-Right |
+| Education: Medium |    -0.09 |      0.01 |     -9.24 |    0.00 | -0.11 | -0.07 | Left-Right |
+| Age               |     0.00 |      0.00 |    -13.15 |    0.00 |  0.00 |  0.00 | Left-Right |
 
-| term                                | estimate | std.error | statistic | p.value | lower | upper | model   |
-|:------------------------------------|---------:|----------:|----------:|--------:|------:|------:|:--------|
-| (Intercept)                         |     3.79 |      0.02 |     197.2 |    0.00 |  3.75 |  3.83 | Model 2 |
-| Ideology (Progressive-Conservative) |    -0.02 |      0.00 |      -8.9 |    0.00 | -0.02 | -0.02 | Model 2 |
-| Gender: Male                        |     0.01 |      0.01 |       1.6 |    0.11 |  0.00 |  0.03 | Model 2 |
-| Education: Low                      |    -0.15 |      0.01 |     -11.6 |    0.00 | -0.17 | -0.12 | Model 2 |
-| Education: Medium                   |    -0.09 |      0.01 |      -8.7 |    0.00 | -0.11 | -0.07 | Model 2 |
-| Age                                 |     0.00 |      0.00 |     -13.0 |    0.00 |  0.00 |  0.00 | Model 2 |
+| term              | estimate | std.error | statistic | p.value | lower | upper | model                    |
+|:------------------|---------:|----------:|----------:|--------:|------:|------:|:-------------------------|
+| (Intercept)       |     3.79 |      0.02 |     197.2 |    0.00 |  3.75 |  3.83 | Progressive-Conservative |
+| Ideology          |    -0.02 |      0.00 |      -8.9 |    0.00 | -0.02 | -0.02 | Progressive-Conservative |
+| Gender: Male      |     0.01 |      0.01 |       1.6 |    0.11 |  0.00 |  0.03 | Progressive-Conservative |
+| Education: Low    |    -0.15 |      0.01 |     -11.6 |    0.00 | -0.17 | -0.12 | Progressive-Conservative |
+| Education: Medium |    -0.09 |      0.01 |      -8.7 |    0.00 | -0.11 | -0.07 | Progressive-Conservative |
+| Age               |     0.00 |      0.00 |     -13.0 |    0.00 |  0.00 |  0.00 | Progressive-Conservative |
 
 <img src="../../report/figures/plot h2-1.png" style="display: block; margin: auto;" />
