@@ -33,12 +33,12 @@ load(here("data/intermediate/data_for_analyses.RData"))
 ## Correlation Matrix all variables
 ```{r "correlation-matrix", echo=F, message=T, warning=T, fig.width=8, fig.height=8}
 d %>%
-  dplyr::select(PNC,
-         `NfC` = NFC,
-         `ToA` = TOA, 
-         `Ideology (Left-Right)` = E2, 
-         `Ideology (Prog-Con)` = E2_2,
-         MCE,
+  dplyr::select(`Complexity Preference` = PNC,
+         `NfCognition` = NFC,
+         `ToAmbiguity` = TOA, 
+         `Right-Wing Ideology` = E2, 
+         `Conservative Ideology` = E2_2,
+         `Complexity Exposure` = MCE,
          Gender = sex,
          Age = age, 
          Education = education, 
