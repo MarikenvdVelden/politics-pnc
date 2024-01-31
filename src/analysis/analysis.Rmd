@@ -60,7 +60,7 @@ d %>%
   type = "robust", # correlation method
   cor.vars = c(everything()), # a range of variables can be selected
   colors = c("violet", "white", "seagreen"),
-  title = "Correlalogram for Variables under Study"
+  title = ""
 )
 
 ```
