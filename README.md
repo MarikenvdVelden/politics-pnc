@@ -9,7 +9,25 @@ View the draft of the paper [here](report/draft.pdf)
 
 ## Data  &amp; Descririptives
 
-* [This page](src/data-processing/data-processing.md) shows the  details on the data and  the measurement models.
+### Methodology & Procedure:
+Survey, VU Elections Study 2023b,  KiesKompas VIP panel (Van der Velden, 2023); four-wave panel study.
+2416 adult participants (Mage=57.06, SD=16.55, Female= 41.51%, Male=58.49%)
+
+[This page](src/data-processing/data-processing.md) shows the  details on the data and  the measurement models.
+
+### Scales
+* Preference for Narrative Complexity (PNC) Scale (Willemsen et, al. 2022):
+  - A 23-item scale designed to assess individual preferences for complex narrative structures in film and television.
+* MSTAT-II scale (Mclain, 2009):
+  - Measured using the 13-item Multiple Stimulus Types Ambiguity Tolerance Scale-II.
+  - Assesses the degree to which individuals are comfortable with uncertainty and ambiguous situations.
+* Need for Cognition Scale (Coelho et al, 2018):
+  - A 6-item scale evaluating the tendency to engage in and enjoy effortful cognitive activities.
+* Political Orientation Assessment (Jost et al, 2009):
+  - A 2 item scale evaluating political-ideological self-placement (Right-Left, Conservative-Progressive)
+  - Party preference was recorded to determine each subject's ideological orientation.
+    
+
 
 ## Results
 
