@@ -70,18 +70,21 @@ PNC is predicted by....
 source(here("src/analysis/h1.R"))
 
 h1
-p1
 ```
 
+```{r "plot h1"}
+p1
+```
 
 ## H2: Individuals with a lower PNC are more likely to have a more right-wing political orientation (H2a) and will vote for conservative political parties (H2b).
 
   
 ```{r "testing-h2", fig.width=18, fig.height=18}
 source(here("src/analysis/h2.R"))
-
 h2_1
 h2_2
-p2
 ```
 
+```{r "plot h2"}
+p2
+```

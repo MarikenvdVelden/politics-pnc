@@ -34,6 +34,8 @@ education
 | Education: Medium |    -0.04 |      0.01 |      -4.2 |     0.0 | -0.06 | -0.02 |
 | Age               |     0.00 |      0.00 |     -11.0 |     0.0 |  0.00 |  0.00 |
 
+<img src="../../report/figures/plot h1-1.png" style="display: block; margin: auto;" />
+
 ## H2: Individuals with a lower PNC are more likely to have a more right-wing political orientation (H2a) and will vote for conservative political parties (H2b).
 
 | term                  | estimate | std.error | statistic | p.value | lower | upper | model   |
@@ -53,3 +55,5 @@ education
 | Education: Low                      |    -0.15 |      0.01 |     -11.6 |    0.00 | -0.17 | -0.12 | Model 2 |
 | Education: Medium                   |    -0.09 |      0.01 |      -8.7 |    0.00 | -0.11 | -0.07 | Model 2 |
 | Age                                 |     0.00 |      0.00 |     -13.0 |    0.00 |  0.00 |  0.00 | Model 2 |
+
+<img src="../../report/figures/plot h2-1.png" style="display: block; margin: auto;" />
