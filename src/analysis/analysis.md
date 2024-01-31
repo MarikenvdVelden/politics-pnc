@@ -7,9 +7,9 @@ Data Analysis
   (H1b)](#h1-individuals-with-a-higher-pnc-are-more-likely-to-exhibit-greater-tolerance-for-ambiguity-h1a-demonstrate-a-higher-need-for-cognition-h1b)
   - [DV = PNC](#dv--pnc)
 - [H2: Individuals with a lower PNC are more likely to have a more
-  right-wing political orientation (H2a) and will vote for conservative
-  political parties
-  (H2b).](#h2-individuals-with-a-lower-pnc-are-more-likely-to-have-a-more-right-wing-political-orientation-h2a-and-will-vote-for-conservative-political-parties-h2b)
+  conservative political orientation (H2a) and will vote for
+  conservative political parties
+  (H2b).](#h2-individuals-with-a-lower-pnc-are-more-likely-to-have-a-more-conservative-political-orientation-h2a-and-will-vote-for-conservative-political-parties-h2b)
 
 ## Correlation Matrix all variables
 
@@ -36,7 +36,7 @@ education
 
 <img src="../../report/figures/plot h1-1.png" style="display: block; margin: auto;" />
 
-## H2: Individuals with a lower PNC are more likely to have a more right-wing political orientation (H2a) and will vote for conservative political parties (H2b).
+## H2: Individuals with a lower PNC are more likely to have a more conservative political orientation (H2a) and will vote for conservative political parties (H2b).
 
 | term              | estimate | std.error | statistic | p.value | lower | upper | model      |
 |:------------------|---------:|----------:|----------:|--------:|------:|------:|:-----------|

@@ -33,11 +33,24 @@ load(here("data/intermediate/data_for_analyses.RData"))
 ## Correlation Matrix all variables
 ```{r "correlation-matrix", echo=F, message=T, warning=T, fig.width=8, fig.height=8}
 d %>%
+  mutate(vote = recode(A2,
+                       `CDA` = 1,
+                       `Boerburgerbewegging (BBB)` = 1,
+                       `BNVL` = 1,
+                       `ChristenUnie` = 1,
+                       `Forum voor Democratie` = 1,
+                       `JA21` = 1,
+                       `Nieuw Sociaal Contract` = 1,
+                       `PVV` = 1,
+                       `SGP` = 1,
+                       `VVD` = 1,
+                       .default = 0)) |> 
   dplyr::select(`Complexity Preference` = PNC,
          `NfCognition` = NFC,
          `ToAmbiguity` = TOA, 
          `Right-Wing Ideology` = E2, 
          `Conservative Ideology` = E2_2,
+         `Conservative vote` = vote,
          `Complexity Exposure` = MCE,
          Gender = sex,
          Age = age, 
@@ -76,7 +89,7 @@ h1
 p1
 ```
 
-## H2: Individuals with a lower PNC are more likely to have a more right-wing political orientation (H2a) and will vote for conservative political parties (H2b).
+## H2: Individuals with a lower PNC are more likely to have a more conservative political orientation (H2a) and will vote for conservative political parties (H2b).
 
   
 ```{r "testing-h2", fig.width=18, fig.height=18}
