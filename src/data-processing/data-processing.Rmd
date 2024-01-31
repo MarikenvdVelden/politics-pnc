@@ -1,0 +1,97 @@
+---
+title: 'Prepare Data'
+author: 
+output: 
+  github_document:
+    toc: yes
+always_allow_html: true
+editor_options: 
+  
+  chunk_output_type: console
+---
+
+```{r "setup", include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+                      fig.align = "center",
+                      fig.path=('../../report/figures/'))
+library(printr)
+options(digits = 2)
+library(rmarkdown)
+```
+
+## Required Packages &amp; Reproducibility
+
+```{r "env", message=FALSE, warning=F}
+rm(list=ls())
+source(here::here("src/lib/functions.R"))
+#renv::snapshot()
+```
+
+## Tidy Data
+
+```{r "get & clean data", results="hide"}
+load(here("data/raw-private/cleaned_data_w2.RData")) 
+load(here("data/raw-private/cleaned_data_w3.RData"))
+
+source(here("src/data-processing/clean_data.R"))
+```
+
+## Factor Analyses of PNC
+
+**H38** == PNC (21 questions)
+
+```{r "factor-analyses"}
+source(here("src/data-processing/factor_analyses.R"))
+
+#PCA Info
+summary(res_pca)
+eig_val
+fviz_eig(res_pca, fill.var="blue")
+var #PCA results for variables
+corrplot(var$cos2, is.corr=FALSE)
+fviz_cos2(res_pca, choice = "var", axes = 1:2)
+fviz_pca_var(res_pca,
+             col.var = "cos2", # Color by the quality of representation
+             gradient.cols = c("darkorchid4", "gold", "darkorange"),
+             repel = TRUE
+             )
+grid.arrange(a,b, ncol=2, top='Contribution of the variables to the first two PCs')
+
+# EFA Info
+KMO(df2) #Evaluate data, scores <0.5 should be removed (0 in our case)
+cortest.bartlett(df2)#Bartlett’s test for sphericity
+ev$values
+scree(df2, pc=FALSE) 
+fa.parallel(df2, fa="fa")
+print(fit, digits=2, cutoff=0.3, sort=TRUE)
+load <- fit$loadings[,1:2]
+plot(load,type="n") # set up plot
+text(load,labels=names(df2),cex=.7)
+fa.diagram(loads)
+
+# CFA Info
+
+```
+
+
+## Reliability of Scales 
+**H38** == PNC (21 questions)
+**H36** == NFC (6 questions)
+**H37** == TOA (13 questions)
+**H40** == MCE (14 questions) -- if H40_i == 1, we move on to H41_i and H42_i
+
+```{r "scales"}
+source(here("src/data-processing/scales.R"))
+
+pnc_omega
+rel_scales
+```
+
+
+## Save Data for Analysis
+```{r "save data"}
+d <- d |> 
+  select(id:E2_2, PNC, TOA, NFC, MCE)
+save(d, file = here("data/intermediate/data_for_analyses.RData"))
+```
+
