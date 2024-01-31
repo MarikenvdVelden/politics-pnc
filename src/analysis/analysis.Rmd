@@ -50,7 +50,7 @@ d %>%
          `ToAmbiguity` = TOA, 
          `Right-Wing Ideology` = E2, 
          `Conservative Ideology` = E2_2,
-         `Conservative vote` = vote,
+         `Conservative Vote` = vote,
          `Complexity Exposure` = MCE,
          Gender = sex,
          Age = age, 
