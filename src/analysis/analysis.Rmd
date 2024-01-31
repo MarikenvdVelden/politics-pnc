@@ -59,7 +59,7 @@ d %>%
   ggcorrmat(
   type = "robust", # correlation method
   cor.vars = c(everything()), # a range of variables can be selected
-  colors = c("violet", "white", "seagreen"),
+  colors = c("#D87152", "white", "#66B6E1"),
   title = ""
 )
 
