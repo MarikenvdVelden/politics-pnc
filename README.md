@@ -3,6 +3,8 @@
 Online research compendium of the paper entitled _Narrative Nuances: Exploring the Interplay of Cognitive Styles, Political Affiliation, and Preferences for Narrative Complexity in Media'_ . 
 This repository combines the  paper with the data &amp; analysis compendium -- see the scripts in `src/data-processing` for details on the data and `src/analysis` for the analyses presented in the paper.
 
+## Get in touch
+For further questions, feel free to reach out at: g.n.yonah@vu.nl
 
 ## Paper
 View the draft of the paper [here](report/draft.pdf)
