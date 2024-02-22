@@ -25,7 +25,7 @@ df2 <- d |>
 ev <- eigen(cor(df2)) # get eigenvalues
 
 # Extract (and rotate) factors
-Nfacs <- 5  # This is for five factors. You can change this as needed.
+Nfacs <- 6  # This is for six factors. According to the prediction of 6 factors in the book chapter.
 fit <- factanal(df2, Nfacs, rotation="promax")
 loads <- fit$loadings
 
