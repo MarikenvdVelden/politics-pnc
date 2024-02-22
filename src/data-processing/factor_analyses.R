@@ -3,7 +3,7 @@
 
 df1 <- d |> 
   sample_n(1000) |> 
-  select(starts_with("H38_"))
+  select(starts_with("H38_")) 
 
 res_pca <- prcomp(df1, scale = TRUE)
 eig_val<-get_eigenvalue(res_pca)
