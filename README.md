@@ -55,7 +55,7 @@ The full survey sample consisted of 2,400 adult participants. The primary struct
 
 ## Results
 
-* [This page](report/figures/semfinal (convote).png) shows the results of the SEM anaysis. 
+* [This page](report/figures/semfinal(convote).png) shows the results of the SEM anaysis. 
 
 ## Code of Conduct
 Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
