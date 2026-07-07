@@ -1,0 +1,436 @@
+---
+title: "Methods Data analysis"
+author: "Gaia Yonah"
+date: "2024-03-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Context - There is a forseeable trend towards more complex storytelling. The storytelling found in contemporary complex film, television and literature produces a particular kind of narrative experience - one characterized by high rates of uncertainty, ambiguity or incongruity. People are known to vary in their willingness and ability to cope with such uncertain or ambiguous epistemic states. Could the same personality factors influence the enjoyment of complexity in fiction? Previous study by Willemsen et al. has created a measure to assess this preference of narrative complexity. However, this scale was not properly validated. The sample size they used was 101 participants, they used PCA to reduce the dimentionality of the scale as well as excecuting EFA and CFA on the same sample. Therefore, more research is needed to assess the validity of this scale.
+
+#Load Packages
+```{r "libraries", results="hide"}
+library(tidyverse)
+library(here)
+library(factoextra)
+library(corrplot)
+library(gridExtra)
+library(psych)
+library(hrbrthemes)
+library(broom)
+library(ggstatsplot)
+library(lavaan)
+library(semTools)
+library(rio)
+library(psych)
+library(lavaan)
+library(semTools)
+library(car)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+
+```
+
+
+## Load data
+```{r "load data"}
+load(here("documents/Quantitative methods/cleaned_data_w1.RData"))
+load(here("documents/Quantitative methods/cleaned_data_w2.RData"))
+load(here("documents/Quantitative methods/cleaned_data_w3.RData"))
+load(here("documents/Quantitative methods/cleaned_data_w4.RData"))
+
+```
+
+
+## Merge data and clean it
+```{r "merge and clean"}
+#Merge data sets
+d2 <- d2|> 
+  select(id, age:urbanisation, #background variables
+         A2,#vote choice
+         E2, E2_2, #left right placement & progressive-conservative placement
+         H36_1:H36_5, #need for cognition
+         H37_1_1:H37_3_2, #tolerance for ambiguity
+         H38_1_1: H38_5_3) |> #PNC 
+  distinct(id, .keep_all = T)
+
+d3 <- d3 |> 
+  select(id, H40_1:H42_14)|> #PNC |> 
+  distinct(id, .keep_all = T)
+
+d <- full_join(d2, d3, by = "id")
+
+# We want factors for variable
+d <- d %>% 
+  mutate(across(.cols = c(sex, ethnicity, education, region, urbanisation, A2),
+                .fns = ~factor(.)))
+
+# We need to impute missings for NFC (6 questions), TOA (13 questions), PNC (21 questions), MCE (14 questions) -- if H40_i == 1, we move on to H41_i and H42_i
+d <- d %>% 
+  mutate(across(.cols = H36_1:H36_5, #impute missings NFC (6 questions)
+                .fns = ~replace_na(., round(mean(., na.rm = TRUE), 0)))) %>% 
+  rowwise() %>% 
+  # Your impute missing logic here for H37 and H38 columns remains unchanged.
+  mutate(H37_3_1 = replace_na(H37_3_1, H37_3_2),
+         # Repeat for each variable as in your original code
+         ) %>%
+  ungroup() %>% 
+  mutate(across(.cols = H40_1:H40_14, #MCE: make all that are not 1, 0
+                .fns = ~if_else(. == 1, 1, 0))) %>% 
+  mutate(across(.cols = c(H41_1:H41_14, H42_1:H42_14), #impute missings MCE - part1
+                .fns = ~replace_na(., 0))) %>% 
+  mutate(E2_2 = na_if(E2_2, 99),
+         E2_2 = replace_na(E2_2, mean(E2_2, na.rm = TRUE)),
+         E2_2 = 11 - E2_2) %>% 
+  drop_na(H38_1_1)
+# Impute missings other
+d <- d %>% 
+  mutate(across(.cols = H37_1_1:H37_3_2, #impute missings ToA (13 questions)
+                .fns = ~replace_na(., round(mean(., na.rm = TRUE),0)))) %>% 
+  mutate(across(.cols = H38_1_1:H38_5_3, #impute missings PNC (21 questions)
+                .fns = ~replace_na(., round(mean(., na.rm = TRUE),0))))
+
+
+# Reverse coding
+
+d <- d %>% 
+  mutate(across(.cols = c("H36_3", "H36_4"), 
+                .fns = ~ 6 - .)) %>% # NFC reverse
+  mutate(across(.cols = c("H37_1_1", "H37_1_2", "H37_1_3", "H37_1_5", "H37_2_1", "H37_2_2", "H37_2_3", "H37_2_5", "H37_3_1"), 
+                .fns = ~ 6 - .)) %>% # TOA reverse
+  mutate(across(.cols = c("H38_1_2", "H38_1_3", "H38_1_5", "H38_2_2", "H38_2_3", "H38_3_1", "H38_3_4", "H38_3_6", "H38_4_2", "H38_4_3", "H38_4_4", "H38_5_1"), 
+                .fns = ~ 6 - .)) %>% # PNC reverse
+  mutate(across(.cols = c("H41_1", "H41_2", "H41_3", "H41_4", "H41_5", "H41_6", "H41_7", "H41_8", "H41_9", "H41_10", "H41_11", "H41_12", "H41_13", "H41_14"), 
+                .fns = ~ 5 - .)) # MCE reverse
+
+```
+## Better reliability of scales
+
+```{r "better reliability of scales"}
+
+# install.packages(c("psych","dplyr","tidyr"))
+library(psych); library(dplyr); library(tidyr)
+
+# --- 0) Define your item sets (EDIT THESE to your actual columns) ---
+# You already used H36*, H37*, H38*, H40* — keep that structure
+nfc_items <- grep("^H36", names(d), value = TRUE)
+toa_items <- grep("^H37", names(d), value = TRUE)
+pnc_items_all <- grep("^H38", names(d), value = TRUE)
+mce_items <- grep("^H40", names(d), value = TRUE)
+
+# If you have a validated PNC taxonomy, define subscales explicitly:
+pnc_nonclose  <- c("H38_1_1", "H38_1_2", "H38_1_3", "H38_1_4")
+pnc_puzzle    <- c("H38_1_5", "H38_2_1", "H38_2_2")         
+pnc_infoload  <- c("H38_2_3", "H38_3_1", "H38_3_2", "H38_3_3")
+pnc_temporal  <- c("H38_3_4", "H38_3_5", "H38_3_6", "H38_3_7")
+pnc_twists    <- c("H38_4_1", "H38_4_2", "H38_4_3")                               
+pnc_incong    <- c("H38_4_4", "H38_5_1", "H38_5_2") 
+
+# Your shorter PNC set (3 factors) if you plan to report it:
+pnc_short_items <- c("H38_1_1", "H38_1_2","H38_1_3", "H38_1_4", "H38_1_5", "H38_2_1", "H38_2_2", "H38_2_3",
+"H38_3_1", "H38_3_2", "H38_3_3","H38_3_4","H38_3_5","H38_3_6","H38_3_7","H38_4_1","H38_4_2","H38_4_3")
+
+
+# --- 2) Helpers using POLYCHORIC correlations for ordinal items ---
+pcor <- function(df_items){
+  df_items <- df_items |> mutate(across(everything(), as.numeric)) |> drop_na()
+  psych::polychoric(df_items)$rho
+}
+
+reli_poly <- function(df_items, nfactors = 1){
+  df_items <- df_items |> mutate(across(everything(), as.numeric)) |> drop_na()
+  n <- nrow(df_items)
+  R <- psych::polychoric(df_items)$rho
+  a <- psych::alpha(R, n.obs = n)$total$raw_alpha
+  w <- suppressWarnings(psych::omega(R, n.obs = n, nfactors = nfactors, fm = "minres"))
+  list(
+    n = n,
+    alpha = a,
+    omega_total = w$omega.tot,
+    omega_h = if(!is.null(w$omega_h)) w$omega_h else NA_real_
+  )
+}
+
+# --- 3) NFC & TOA (unidimensional) ---
+rel_nfc <- reli_poly(d[nfc_items], nfactors = 1)
+rel_toa <- reli_poly(d[toa_items], nfactors = 1)
+
+# --- 4) PNC subscales (assumed unidimensional each) ---
+rel_pnpuz <- reli_poly(d[pnc_puzzle],   nfactors = 1)
+rel_pninf <- reli_poly(d[pnc_infoload], nfactors = 1)
+rel_pntmp <- reli_poly(d[pnc_temporal], nfactors = 1)
+rel_pnncl <- reli_poly(d[pnc_nonclose], nfactors = 1)
+rel_pntws <- reli_poly(d[pnc_twists],   nfactors = 1)
+rel_pninc <- reli_poly(d[pnc_incong],   nfactors = 1)
+
+# --- 5) PNC total (multi-factor; report ω_total and ω_h) ---
+# Use nfactors = number of subscales you modeled above
+rel_pnc_total <- reli_poly(d[pnc_items_all], nfactors = 6)
+
+# If you want the short PNC version with 3 factors:
+rel_pnc_short <- reli_poly(d[pnc_short_items], nfactors = 3)
+
+# --- 6) MCE (only if reflective multi-item; else skip) ---
+# If H40* are reflective "exposure tendency" items (not counts of films), do this:
+if(length(mce_items) > 1){
+  rel_mce <- reli_poly(d[mce_items], nfactors = 1)
+} else {
+  rel_mce <- list(n = sum(!is.na(d[[mce_items]])), alpha = NA, omega_total = NA, omega_h = NA)
+}
+
+# --- 7) Tidy summary for your appendix/table ---
+tibble::tibble(
+  Scale = c("NFC","TOA",
+            "PNC: Puzzles","PNC: Info load","PNC: Temporalities",
+            "PNC: Nonclosure","PNC: Twists","PNC: Incongruities",
+            "PNC: Total (6-factor)","PNC (short, 3-factor)",
+            "MCE (if reflective)"),
+  N     = c(rel_nfc$n, rel_toa$n,
+            rel_pnpuz$n, rel_pninf$n, rel_pntmp$n, rel_pnncl$n, rel_pntws$n, rel_pninc$n,
+            rel_pnc_total$n, rel_pnc_short$n, rel_mce$n),
+  Alpha = round(c(rel_nfc$alpha, rel_toa$alpha,
+                  rel_pnpuz$alpha, rel_pninf$alpha, rel_pntmp$alpha,
+                  rel_pnncl$alpha, rel_pntws$alpha, rel_pninc$alpha,
+                  NA, NA, rel_mce$alpha), 2),
+  Omega_total = round(c(rel_nfc$omega_total, rel_toa$omega_total,
+                        rel_pnpuz$omega_total, rel_pninf$omega_total, rel_pntmp$omega_total,
+                        rel_pnncl$omega_total, rel_pntws$omega_total, rel_pninc$omega_total,
+                        rel_pnc_total$omega_total, rel_pnc_short$omega_total, rel_mce$omega_total), 2),
+  Omega_h = c(rep(NA, 8),
+              round(rel_pnc_total$omega_h, 2),
+              round(rel_pnc_short$omega_h, 2),
+              rel_mce$omega_h)
+)
+
+```
+
+## reliability of scales
+
+```{r "reliability of scales"}
+
+# Creating a data frame for the NFC scale (H36)
+cols_nfc <- grep("^H36", names(d), value = TRUE)
+df_nfc <- d[cols_nfc]
+
+# Creating a data frame for the TOA scale (H37)
+cols_toa <- grep("^H37", names(d), value = TRUE)
+df_toa <- d[cols_toa]
+
+# Creating a data frame for the PNC scale (H38)
+cols_pnc <- grep("^H38", names(d), value = TRUE)
+df_pnc <- d[cols_pnc]
+
+# Creating a data frame for the MCE questionnaire
+cols_mce <- grep("^H40", names(d), value = TRUE)
+df_mce <- d[cols_mce]
+
+# Items for the shorter version of the PNC scale
+pnc_short_items <- c("H38_1_1", "H38_1_2", "H38_1_3", "H38_1_4", "H38_1_5", 
+                     "H38_2_1", "H38_3_1", "H38_3_3", "H38_3_4", "H38_3_5", 
+                     "H38_4_1", "H38_4_2", "H38_4_3", "H38_5_2")
+
+# Creating a data frame for the shorter version
+df_pnc_short <- d[pnc_short_items]
+
+# Alpha reliability for the NFC scale (1 factor)
+omega_nfc <- omega(df_nfc, nfactors = 1)
+
+# Omega reliability for the TOA scale (1 factor)
+omega_toa <- omega(df_toa, nfactors = 1)
+
+# Omega reliability for the PNC scale (6 factors)
+omega_pnc <- omega(df_pnc, nfactors = 6)
+
+# Omega reliability for the short PNC scale (3 factors)
+omega_pncs <- omega(df_pnc_short, nfactors = 3)
+
+# Calculate omega reliability for the MCE questionnaire
+omega_mce <- omega(df_mce)
+
+# Print the omega reliability results
+print(omega_nfc)
+print(omega_toa)
+print(omega_pnc)
+print(omega_pncs)
+print(omega_mce)
+```
+
+
+## efa
+```{r "run efa"}
+#EFA (450 respondents drawn by a random sample) - extended version (24 items)
+#https://github.com/maugavilla/well_hello_stats/blob/main/tutorials/13_EFA_cont.md
+
+df2 <- d |> 
+  sample_n(450) |> 
+  select(starts_with("H38_"))
+
+#Estimating the model
+
+fit.efa <- efa(data = df2,
+               nfactors = 1:10,
+               rotation = "geomin",
+               baseline = T,
+               missing="fiml")
+
+#testing the convergence of the models
+
+converged <- NULL
+for(j in 1:10){
+  converged[j] <- lavInspect(fit.efa[[j]], "converged")
+}
+converged
+
+# Factor enumeration
+## Extracting fit indices
+
+fit_ind <- NULL
+for(j in 1:10){
+  temp <- c(nfac = nrow(lavInspect(fit.efa[[j]],"cor.lv")),
+            fitMeasures(fit.efa[[j]], c("npar","chisq","df","pvalue","cfi","tli","srmr","rmsea","aic","bic")),
+            moreFitIndices(fit.efa[[j]], "gammaHat"))
+  fit_ind <- do.call(rbind, list(fit_ind, temp))
+}
+fit_ind <- as.data.frame(fit_ind)
+round(fit_ind, 4)
+
+
+# Determine Number of Factors to Extract
+## Elbow plots - cfi, tli and gammaHat
+elbow_plot1 <- fit_ind[ , c("nfac","cfi","tli","gammaHat")] # 
+elbow_plot1 <- pivot_longer(elbow_plot1, cols = c("cfi","tli","gammaHat"), names_to = "Index", values_to = "Value") # to long format
+
+p1 <- ggplot(elbow_plot1, aes(x = nfac, y = Value, group = Index))+
+  geom_point(aes(color = Index))+
+  geom_line(aes(color = Index))+
+  labs(title="Elbow Plot of fit indices", 
+       x = "Number of Factors", y = " Value")+
+  theme_minimal() +
+  geom_hline(yintercept = 0.9, lty = 2)
+p1
+
+#Elbow plots - rmsea and srmr
+elbow_plot2 <- fit_ind[ , c("nfac","rmsea","srmr")] # 
+elbow_plot2 <- pivot_longer(elbow_plot2, cols = c("rmsea","srmr"), names_to = "Index", values_to = "Value") # to long format
+
+p2 <- ggplot(elbow_plot2, aes(x = nfac, y = Value, group = Index))+
+  geom_point(aes(color = Index))+
+  geom_line(aes(color = Index))+
+  labs(title="Elbow Plot of fit indices", 
+       x = "Number of Factors", y = " Value")+
+  theme_minimal() +
+  geom_hline(yintercept = 0.08, lty = 2)
+p2
+
+# elbow plot - information critiria 
+
+elbow_plot3 <- fit_ind[ , c("nfac","aic","bic")] # 
+elbow_plot3 <- pivot_longer(elbow_plot3, cols = c("aic","bic"), names_to = "IC", values_to = "Value") # to long format
+
+p3 <- ggplot(elbow_plot3, aes(x = nfac, y = Value, group = IC))+
+  geom_point(aes(color = IC))+
+  geom_line(aes(color = IC))+
+  labs(title="Elbow Plot of information criteria", 
+       x = "Number of Factors", y = " Value")+
+  theme_minimal()
+p3
+
+p1 + p2 + p3 + plot_layout(nrow = 3, byrow = FALSE)
+
+summary(fit.efa[[6]], nd = 3L, cutoff = 0.3, dot.cutoff = 0.05)
+
+```
+
+## random sample
+```{r "Random sampling for CFA"}
+df3 <- d |> 
+  sample_n(1000) |> 
+  select(starts_with("H38_"))
+
+```
+
+
+## correlations between across for each sub scale scale
+
+```{r "Correlations"}
+
+# Non-Closure
+v1 <- c("H38_1_1",
+        "H38_1_2",
+        "H38_1_3",
+        "H38_1_4")
+lavCor(df2[,v1])
+
+# Puzzle / Cognitive Challenge
+v2 <- c("H38_1_5",
+        "H38_2_1",
+        "H38_2_2")
+lavCor(df2[,v2])
+
+# Complexity / Cognitive Challenge
+v3 <- c("H38_2_3",
+        "H38_3_1",
+        "H38_3_2",
+        "H38_3_3")
+lavCor(df2[,v3])
+
+## Different temporalities / Cognitive Challenge
+v4 <- c("H38_3_4",
+        "H38_3_5",
+        "H38_3_6",
+        "H38_3_7")
+lavCor(df2[,v4])
+
+## Twists 
+v5 <- c("H38_4_1",
+        "H38_4_2",
+        "H38_4_3")
+lavCor(df2[,v5])
+
+## Incon
+v6 <- c("H38_5_1",
+        "H38_5_2",
+        "H38_5_3")
+lavCor(df3[,v6])
+
+```
+
+## CFA with 6 factors
+
+```{r "cfa"}
+m1 <- '
+# Non-Closure
+noc =~ H38_1_1 + H38_1_2 + H38_1_3 + H38_1_4 
+# Puzzle
+puz =~ H38_1_5 + H38_2_1 + H38_2_2 
+# Complexity
+com =~ H38_2_3 + H38_3_1 + H38_3_2 + H38_3_3 
+# Different temporalities
+dit =~ H38_3_4 + H38_3_5 + H38_3_6 + H38_3_7 
+# Twists 
+tws =~ H38_4_1 + H38_4_2 + H38_4_3 
+# Incon 
+inc =~ H38_5_1 + H38_5_2 + H38_5_3 
+'
+
+fit1 <- cfa(m1, 
+            data=df3, 
+            std.lv=T, 
+            meanstructure=T, 
+            missing="fiml")
+summary(fit1,
+        fit.measures=T,
+        standardized=T,
+        rsquare=T)
+fitMeasures(fit1)
+moreFitIndices(fit1)
+
+# mod indices
+modindices(fit1, sort = T)
+```
+
+
