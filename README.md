@@ -17,7 +17,8 @@ The study used survey data from the VU Election Study 2023b, a four-wave online 
 
 The full survey sample consisted of 2,400 adult participants. The primary structural equation model was estimated on 2,311 respondents with complete data on the continuous study variables (Mage = 57.0, SD = 16.6; 41.5% women, 58.5% men). Analyses involving voting intention were conducted on a reduced subsample of 2,007 respondents with classifiable progressive-versus-conservative voting intentions.
 
-[This page](src/data-processing/data-processing.md) provides details on data processing, scale construction, and the measurement models.
+[This page](src/data-processing/Factoranalysis.Rmd) provides details on data processing, scale construction, and the measurement models.
+[This page](src/analysis/Sem_final.R) provides details on the analysis used for the hypotheses and exploratory questions testing
 
 ### Measures
 
